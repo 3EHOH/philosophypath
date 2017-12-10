@@ -1,0 +1,8 @@
+---
+applications:
+- name: philosophy-path-service
+  memory: 256M
+  instances: 1
+  host: rest-service
+  domain: com.zenon.work
+  path: build/libs/philosophy-path-service-0.1.0.jar

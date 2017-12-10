@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>React + Spring</title>
+    </head>
+    <body>
+        <div id='root'></div>
+
+        <script src="https://fb.me/react-15.0.1.js"></script>
+        <script src="https://fb.me/react-dom-15.0.1.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://rawgit.com/FormidableLabs/radium/54af2e49d458c1c2dbfe00b3b9a56ec1d472d701/dist/radium.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+
+        <script type="text/babel">
+
+            var color = d3.scale.category20();
+
+            var Node = React.createClass({
+                render: function () {
+                    return (
+                        <circle
+                            r={7}
+                            cx={this.props.x}
+                            cy={this.props.y}
+                            style={{
+                                "fill": color(this.props.group),
+                                "stroke":"#fff",
+                                "strokeWidth":"1.5px"
+                            }}/>
+                    )
+                }
+            });
+
+            var Link = React.createClass({
+
+                render: function () {
+                    return (
+                        <line
+                            x1={this.props.datum.source.x}
+                            y1={this.props.datum.source.y}
+                            x2={this.props.datum.target.x}
+                            y2={this.props.datum.target.y}
+                            style={{
+                                "stroke":"#999",
+                                "strokeOpacity":".6",
+                                "strokeWidth": Math.sqrt(this.props.datum.value)
+                            }}/>
+                    );
+                }
+            });
+
+            var Graph = React.createClass({
+                mixins: [Radium.StyleResolverMixin, Radium.BrowserStateMixin],
+                getInitialState: function() {
+
+                    var svgWidth = 900;
+                    var svgHeight = 900;
+                    var force = d3.layout.force()
+                        .charge(-120)
+                        .linkDistance(30)
+                        .size([svgWidth, svgHeight]);
+
+                    return {
+                        svgWidth: svgWidth,
+                        svgHeight: svgHeight,
+                        force: force,
+                        nodes: null,
+                        links: null
+                    }
+                },
+                componentDidMount: function () {
+                    var self = this;
+
+                    console.log(this.props.data);
+
+                    this.state.force
+                        .nodes(this.props.data.nodes)
+                        .links(this.props.data.links)
+                        .start()
+
+                    this.state.force.on("tick", function (tick, b, c) {
+                        self.forceUpdate()
+                    })
+                },
+                drawLinks: function () {
+                    var links = this.props.data.links.map(function (link, index) {
+                        return (<Link datum={link} key={index} />)
+                    })
+                    return (<g>
+                        {links}
+                    </g>)
+                },
+                drawNodes: function () {
+                    var nodes = this.props.data.nodes.map(function (node, index) {
+                        return (<Node
+                                key={node.name}
+                                x={node.x}
+                                y={node.y}
+                                group={node.group}/>)
+                    })
+                    return nodes;
+                },
+                render: function() {
+                    return (
+                        <div>
+                            <div style={{"marginLeft": "20px", "fontFamily": "Helvetica"}}>
+
+                            </div>
+                            <svg
+                                style={{"border": "2px solid black", "margin": "20px"}}
+                                width={this.state.svgWidth}
+                                height={this.state.svgHeight}>
+                                {this.drawLinks()}
+                                {this.drawNodes()}
+                            </svg>
+                        </div>
+                    )
+                }
+            });
+
+
+            var App = React.createClass({
+
+                loadPhilosophyPathFromServer: function (title) {
+                    var self = this;
+                    $.ajax({
+                        url: "http://localhost:8080/philosophypath?name=" + title
+                    }).then(function (data) {
+                        console.log(data);
+                        self.setState({philosophyPath: data});
+                    });
+                },
+
+                getInitialState: function () {
+                    return {philosophyPath: []};
+                },
+
+                componentDidMount: function () {
+                    this.loadPhilosophyPathFromServer('Galileo_Galilei'); //default value
+                },
+
+                handleChange(event) {
+
+                    this.setState({value: event.target.value});
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
+
+                handleClick(event) {
+
+                    this.loadPhilosophyPathFromServer(this.state.value);
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                },
+
+                parseArticlePathData(data){
+                    var noBrackets = data.replace(/[\[\]']/g,'' );
+                    var splitUp = noBrackets.split(", ");
+
+                    var nodes = [];
+                    var links = [];
+
+                    splitUp.forEach(function(value, i){
+
+                        nodes.push({"name":value,"group":1});
+
+                        if(i < splitUp.length - 1){
+                            links.push({"source":i ,"target":i+1,"value":1});
+                        }
+
+                    });
+
+                    return {"nodes": nodes, "links": links};
+                },
+
+                render() {
+
+                    console.log(this.state.philosophyPath);
+
+                    if(!!this.state.philosophyPath.articlePath){
+
+                        var data = this.parseArticlePathData(this.state.philosophyPath.articlePath);
+
+                        return (
+                            <div >
+                                <Graph data={data} />
+                                <input type="text" onChange={ this.handleChange } />
+                                <input
+                                    type="button"
+                                    value="Submit"
+                                    onClick={this.handleClick}
+                                />
+
+                                <div>{JSON.stringify(this.state.philosophyPath)}</div>
+                            </div>);
+
+                    //if the data doesn't exist yet, don't load the graph
+                    } else {
+
+                        return (
+                            <div >
+                                <input type="text" onChange={ this.handleChange } />
+                                <input
+                                    type="button"
+                                    value="Submit"
+                                    onClick={this.handleClick}
+                                />
+                                <div>{JSON.stringify(this.state.philosophyPath)}</div>
+                            </div>);
+                    }
+
+                }
+            });
+
+            ReactDOM.render(<App />, document.getElementById('root') );
+        </script>
+    </body>
+</html>
