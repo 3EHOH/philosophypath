@@ -128,7 +128,7 @@
                 loadPhilosophyPathFromServer: function (title) {
                     var self = this;
                     $.ajax({
-                        url: "http://localhost:8080/philosophypath?name=" + title
+                        url: "/philosophypath?name=" + title
                     }).then(function (data) {
                         console.log(data);
                         self.setState({philosophyPath: data});
