@@ -49,6 +49,6 @@ Misc:
 
 Known Issues:
 
-- Currently, the program only searches `.mw-content-ltr p a[href^=\"/wiki/\"]`, which gets <a href>'s from <p>'s within the .mw-content-ltr class. Certain list articles that lack a <p> tag may be missed.
+- Currently, the program only searches `.mw-content-ltr p a[href^=\"/wiki/\"]`, which gets `<a href>`'s from `<p>`'s within the `.mw-content-ltr` class. Certain list articles that lack a `<p>` tag may be missed.
 
 - The D3 directed graph doesn't re-render properly when a new query is entered.
