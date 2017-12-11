@@ -8,7 +8,7 @@ How it works:
 
 - The REST service first checks if a record for `Yellowhammer` already exists in a MongoDB database called `philosophypath` and a collection within that also called `philosophypath`.
 
-- Records are stored as {id: <firstArticleTitle>, articlePath: <stringifiedArrayOfArticleTitles>}
+- Records are stored as `{id: <firstArticleTitle>, articlePath: <stringifiedArrayOfArticleTitles>}`
 
 - If a record is found, it is returned view the /philosophypath /GET endpoint
 
