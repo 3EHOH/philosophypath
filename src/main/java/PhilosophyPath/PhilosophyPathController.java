@@ -12,8 +12,9 @@ import javax.validation.Valid;
 
 import static PhilosophyPath.PhilosophyPath.getPathToPhilosophy;
 
+//Currently we have functionality for /GET and /POST and the ?title query parameter
+
 @RestController
-//@RequestMapping("/api")
 @CrossOrigin("*")
 public class PhilosophyPathController {
 
@@ -21,12 +22,12 @@ public class PhilosophyPathController {
     PhilosophyPathRepository philosophyPathRepository;
 
     @RequestMapping("/philosophypath")
-    public PhilosophyPath queryPhilosophyPath(@RequestParam(value = "name", defaultValue = "World") String name) {
+    public PhilosophyPath queryPhilosophyPath(@RequestParam(value = "title", defaultValue = "Galileo_Galilei") String title) {
 
-        if(getPhilosophyPathById(name).getBody() == null){
+        if(getPhilosophyPathById(title).getBody() == null){
             List<String> pathToPhilosophy = new ArrayList<>();
 
-            pathToPhilosophy.add(name);
+            pathToPhilosophy.add(title);
 
             List<String> completePathToPhilosophy = getPathToPhilosophy(pathToPhilosophy);
 
@@ -38,7 +39,7 @@ public class PhilosophyPathController {
 
             return new PhilosophyPath(pathStarter, completePathToPhilosophy.toString());
         } else {
-            return getPhilosophyPathById(name).getBody();
+            return getPhilosophyPathById(title).getBody();
         }
 
     }

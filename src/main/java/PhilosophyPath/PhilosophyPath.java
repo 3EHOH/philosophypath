@@ -44,6 +44,7 @@ public class PhilosophyPath {
         return traverseLinks(articleTitles);
     }
 
+    //recursively traverse through the first link on each article
     private static List<String> traverseLinks(List<String> articleTitles) {
         Set<String> set = new HashSet<>(articleTitles);
 
@@ -82,6 +83,7 @@ public class PhilosophyPath {
         }
     }
 
+    //find a link by grabbing the html of a page and parsing it
     private static String findLink(String title) {
 
         try {

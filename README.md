@@ -4,7 +4,7 @@ Philosophy Path
 
 How it works:
 
-- A user can issue a query as such: `localhost:8080/philosophypath?name=Yellowhammer`
+- A user can issue a query as such: `localhost:8080/philosophypath?title=Yellowhammer`
 
 - The REST service first checks if a record for `Yellowhammer` already exists in a MongoDB database called `philosophypath` and a collection within that also called `philosophypath`.
 
